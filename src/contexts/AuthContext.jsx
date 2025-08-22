@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const AuthContext = createContext();
@@ -15,30 +15,53 @@ export const AuthProvider = ({ children }) => {
   const { user, isLoadingUser, userError, logout } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  useEffect(() => {
-    // Check if there's a token in localStorage
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      // If there's a token, wait for the user data to load
-      if (user && !userError) {
+  // Update authentication state when user data changes
+  React.useEffect(() => {
+    console.log('AuthContext: user changed:', user); // Debug log
+    console.log('AuthContext: userError:', userError); // Debug log
+
+    if (user && !userError) {
+      // Extract user role from user data
+      let role = null;
+
+      if (user.role) {
+        role = user.role;
+      } else if (user.data && user.data.role) {
+        role = user.data.role;
+      } else if (user.user && user.user.role) {
+        role = user.user.role;
+      }
+
+      console.log('AuthContext: extracted role:', role); // Debug log
+
+      if (role) {
         setIsAuthenticated(true);
-        setUserRole(user.role);
-        setIsInitialized(true);
-      } else if (userError) {
-        // If there's an error, clear the token and set as not authenticated
-        localStorage.removeItem('token');
+        setUserRole(role);
+        console.log('AuthContext: user authenticated with role:', role); // Debug log
+      } else {
+        console.error('AuthContext: no role found in user data');
         setIsAuthenticated(false);
         setUserRole(null);
-        setIsInitialized(true);
       }
-    } else {
-      // No token, so not authenticated
+    } else if (userError) {
+      console.error('AuthContext: user error, clearing auth state');
       setIsAuthenticated(false);
       setUserRole(null);
-      setIsInitialized(true);
+    } else {
+      // Check if there's a token in localStorage
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Token exists but user data not loaded yet
+        console.log('AuthContext: token exists, waiting for user data');
+        setIsAuthenticated(false);
+        setUserRole(null);
+      } else {
+        // No token
+        console.log('AuthContext: no token found');
+        setIsAuthenticated(false);
+        setUserRole(null);
+      }
     }
   }, [user, userError]);
 
@@ -58,7 +81,7 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (permission) => {
     if (!isAuthenticated || !userRole) return false;
-    
+
     // Define role-based permissions
     const permissions = {
       admin: ['read', 'write', 'delete', 'approve', 'manage_users', 'view_analytics'],
@@ -73,13 +96,14 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     userRole,
-    isLoadingUser: isLoadingUser || !isInitialized,
+    isLoadingUser,
     userError,
     logout: handleLogout,
     hasRole,
     hasPermission,
-    isInitialized,
   };
+
+  console.log('AuthContext: current state:', { isAuthenticated, userRole, isLoadingUser }); // Debug log
 
   return (
     <AuthContext.Provider value={value}>

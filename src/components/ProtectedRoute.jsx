@@ -8,11 +8,11 @@ const ProtectedRoute = ({
   requiredPermissions = [],
   redirectTo = '/login'
 }) => {
-  const { isAuthenticated, userRole, hasRole, hasPermission, isLoadingUser, isInitialized } = useAuthContext();
+  const { isAuthenticated, userRole, hasRole, hasPermission, isLoadingUser } = useAuthContext();
   const location = useLocation();
 
-  // Show loading while checking authentication or initializing
-  if (!isInitialized || isLoadingUser) {
+  // Show loading while checking authentication
+  if (isLoadingUser) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>

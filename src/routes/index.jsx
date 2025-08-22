@@ -1,14 +1,15 @@
 import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuthContext } from '../contexts/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import DashboardLayout from '../components/DashboardLayout';
+import DashboardRedirect from '../components/DashboardRedirect';
 
 // Auth pages
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 
-// Home page
-import Home from '../pages/Home';
+// Home page - now handled by DashboardRedirect
 
 // Admin pages
 import AdminOverview from '../pages/admin/Overview';
@@ -44,269 +45,370 @@ import UserSettings from '../pages/user/Settings';
 import Unauthorized from '../pages/errors/Unauthorized';
 import NotFound from '../pages/errors/NotFound';
 
+// Root layout component that provides AuthProvider
+const RootLayout = ({ children }) => {
+    return <AuthProvider>{children}</AuthProvider>;
+};
+
+// Debug component to show authentication state
+const DebugAuth = () => {
+    const { user, isAuthenticated, userRole, isLoadingUser } = useAuthContext();
+
+    return (
+        <div className="p-8">
+            <h1 className="text-2xl font-bold mb-4">Authentication Debug</h1>
+            <pre className="bg-gray-100 p-4 rounded">
+                {JSON.stringify({
+                    user,
+                    isAuthenticated,
+                    userRole,
+                    isLoadingUser,
+                    token: localStorage.getItem('token')
+                }, null, 2)}
+            </pre>
+        </div>
+    );
+};
+
 export const router = createBrowserRouter([
     {
         path: '/',
-        element: <Home />,
+        element: (
+            <RootLayout>
+                <DashboardRedirect />
+            </RootLayout>
+        ),
+    },
+    {
+        path: '/debug',
+        element: (
+            <RootLayout>
+                <DebugAuth />
+            </RootLayout>
+        ),
     },
     {
         path: '/login',
-        element: <Login />,
+        element: (
+            <RootLayout>
+                <Login />
+            </RootLayout>
+        ),
     },
     {
         path: '/register',
-        element: <Register />,
+        element: (
+            <RootLayout>
+                <Register />
+            </RootLayout>
+        ),
     },
     {
         path: '/unauthorized',
-        element: <Unauthorized />,
+        element: (
+            <RootLayout>
+                <Unauthorized />
+            </RootLayout>
+        ),
     },
     // Admin routes
     {
         path: '/admin',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminOverview />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminOverview />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/products',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminProducts />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminProducts />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/hotels',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminHotels />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminHotels />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/orders',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminOrders />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminOrders />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/sellers',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminSellers />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminSellers />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/approvals',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminApprovals />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminApprovals />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/payments',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminPayments />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminPayments />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/reviews',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminReviews />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminReviews />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/analytics',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminAnalytics />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminAnalytics />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/admin/settings',
         element: (
-            <ProtectedRoute requiredRoles={['admin']}>
-                <DashboardLayout>
-                    <AdminSettings />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['admin']}>
+                    <DashboardLayout>
+                        <AdminSettings />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     // Seller routes
     {
         path: '/seller',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerDashboard />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerDashboard />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/products',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerProducts />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerProducts />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/orders',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerOrders />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerOrders />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/hotel-rooms',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerHotelRooms />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerHotelRooms />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/booked-rooms',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerBookedRooms />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerBookedRooms />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/revenue',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerRevenue />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerRevenue />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/reviews',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerReviews />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerReviews />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/seller/settings',
         element: (
-            <ProtectedRoute requiredRoles={['seller']}>
-                <DashboardLayout>
-                    <SellerSettings />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['seller']}>
+                    <DashboardLayout>
+                        <SellerSettings />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     // User routes
     {
         path: '/user',
         element: (
-            <ProtectedRoute requiredRoles={['user']}>
-                <DashboardLayout>
-                    <UserDashboard />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['user']}>
+                    <DashboardLayout>
+                        <UserDashboard />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/user/products',
         element: (
-            <ProtectedRoute requiredRoles={['user']}>
-                <DashboardLayout>
-                    <UserProducts />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['user']}>
+                    <DashboardLayout>
+                        <UserProducts />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/user/orders',
         element: (
-            <ProtectedRoute requiredRoles={['user']}>
-                <DashboardLayout>
-                    <UserOrders />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['user']}>
+                    <DashboardLayout>
+                        <UserOrders />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/user/bookings',
         element: (
-            <ProtectedRoute requiredRoles={['user']}>
-                <DashboardLayout>
-                    <UserBookings />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['user']}>
+                    <DashboardLayout>
+                        <UserBookings />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/user/profile',
         element: (
-            <ProtectedRoute requiredRoles={['user']}>
-                <DashboardLayout>
-                    <UserProfile />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['user']}>
+                    <DashboardLayout>
+                        <UserProfile />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     {
         path: '/user/settings',
         element: (
-            <ProtectedRoute requiredRoles={['user']}>
-                <DashboardLayout>
-                    <UserSettings />
-                </DashboardLayout>
-            </ProtectedRoute>
+            <RootLayout>
+                <ProtectedRoute requiredRoles={['user']}>
+                    <DashboardLayout>
+                        <UserSettings />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            </RootLayout>
         ),
     },
     // Catch all route
     {
         path: '*',
-        element: <NotFound />,
+        element: (
+            <RootLayout>
+                <NotFound />
+            </RootLayout>
+        ),
     },
 ]); 
